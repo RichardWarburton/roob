@@ -1,10 +1,12 @@
 
 extern crate irc;
+extern crate regex;
 
 use std::default::Default;
 use irc::client::prelude::*;
-
 use irc::client::prelude::Command::*;
+use regex::Regex;
+use std::collections::HashMap;
 
 fn main() {
     let cfg = Config {
@@ -15,37 +17,36 @@ fn main() {
     };
     let server = IrcServer::from_config(cfg).unwrap();
     let mut plugins : Vec<Box<Plugin>> = Vec::new();
-    let hwp : HelloWorldPlugin = HelloWorldPlugin{};
-    plugins.push(Box::new(hwp));
+    plugins.push(Box::new(HelloWorldPlugin{}));
+    plugins.push(Box::new(KarmaPlugin::new()));
     server.identify().unwrap();
     for message in server.iter() {
         match message {
             Err(e) => println!("Error: {:?}", e),
-            Ok(msg) => handle_message(&plugins, &server, msg),
+            Ok(msg) => handle_message(&mut plugins, &server, msg),
         }
     }
 }
 
-fn handle_message(plugins : &Vec<Box<Plugin>>, server : &IrcServer, message : Message) {
+fn handle_message(plugins : &mut Vec<Box<Plugin>>, server : &IrcServer, message : Message) {
     // TODO: better logging
     println!("{:?}", message);
 
-    for plugin_box in plugins {
-        let plugin :&Plugin = plugin_box.as_ref();
+    for plugin in plugins {
         plugin.on_message(server, message.clone());
     }
 }
 
 trait Plugin {
-    fn on_message(&self, server : &IrcServer, message : Message);
+    fn on_message(&mut self, server : &IrcServer, message : Message);
 }
 
-pub struct HelloWorldPlugin {
+struct HelloWorldPlugin {
 
 }
 
 impl Plugin for HelloWorldPlugin {
-    fn on_message(&self, server: &IrcServer, message: Message) {
+    fn on_message(&mut self, server: &IrcServer, message: Message) {
         match message.command {
             PRIVMSG(channel, text) => {
                 if text == "Hi" {
@@ -53,6 +54,44 @@ impl Plugin for HelloWorldPlugin {
                         tags: None,
                         prefix: Some(String::from("irc-rs")),
                         command: PRIVMSG(channel, String::from("lo!"))
+                    }).expect("Couldn't send message");
+                }
+            },
+            _ => (),
+        }
+    }
+}
+
+
+struct KarmaPlugin {
+    regex : Regex,
+    scores : HashMap<String, i32>,
+}
+
+impl KarmaPlugin {
+    pub fn new() -> KarmaPlugin {
+        KarmaPlugin {
+            regex: Regex::new(r"([a-zA-Z0-9_]{2,})([\\+\\-]{2})").unwrap(),
+            scores: HashMap::new(),
+        }
+    }
+}
+
+impl Plugin for KarmaPlugin {
+
+    fn on_message(&mut self, server: &IrcServer, message: Message) {
+        match message.command {
+            PRIVMSG(channel, text) => {
+                for cap in self.regex.captures_iter(&text) {
+                    let item = &cap[1];
+                    let mut score = self.scores.entry(String::from(item)).or_insert(0);
+
+                    *score += if &cap[2] == "++" {1} else {-1};
+
+                    server.send(Message{
+                        tags: None,
+                        prefix: Some(String::from("irc-rs")),
+                        command: PRIVMSG(channel.clone(), format!("{} not has karma {}", item, score))
                     }).expect("Couldn't send message");
                 }
             },
