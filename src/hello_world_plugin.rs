@@ -23,3 +23,12 @@ impl Plugin for HelloWorldPlugin {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        // let plugin = HelloWorldPlugin{};
+//        plugin.on_message();
+    }
+}
