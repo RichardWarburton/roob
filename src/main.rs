@@ -8,6 +8,10 @@ use irc::client::prelude::Command::*;
 use regex::Regex;
 use std::collections::HashMap;
 
+const COMMAND_PREFIX : &str = "!";
+
+mod join_plugin;
+
 fn main() {
     let cfg = Config {
         nickname: Some(format!("irc-rs")),
@@ -19,6 +23,7 @@ fn main() {
     let mut plugins : Vec<Box<Plugin>> = Vec::new();
     plugins.push(Box::new(HelloWorldPlugin{}));
     plugins.push(Box::new(KarmaPlugin::new()));
+    plugins.push(Box::new(join_plugin::JoinPlugin{}));
     server.identify().unwrap();
     for message in server.iter() {
         match message {
@@ -37,7 +42,16 @@ fn handle_message(plugins : &mut Vec<Box<Plugin>>, server : &IrcServer, message 
     }
 }
 
-trait Plugin {
+pub fn parse_command(text : String) -> Option<String> {
+    if text.starts_with(COMMAND_PREFIX) {
+        let end = text.find(' ').unwrap_or(text.len());
+        Some(String::from(&text[COMMAND_PREFIX.len() .. end ]))
+    } else {
+        None
+    }
+}
+
+pub trait Plugin {
     fn on_message(&mut self, server : &IrcServer, message : Message);
 }
 
@@ -61,7 +75,6 @@ impl Plugin for HelloWorldPlugin {
         }
     }
 }
-
 
 struct KarmaPlugin {
     regex : Regex,
