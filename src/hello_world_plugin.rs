@@ -14,7 +14,7 @@ impl Plugin for HelloWorldPlugin {
                 if text == "Hi" {
                     server.send(Message{
                         tags: None,
-                        prefix: Some(String::from("irc-rs")),
+                        prefix: Some(String::from(server.current_nickname())),
                         command: PRIVMSG(channel, String::from("lo!"))
                     }).expect("Couldn't send message");
                 }
