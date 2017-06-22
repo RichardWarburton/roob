@@ -5,12 +5,11 @@ extern crate regex;
 use std::default::Default;
 use irc::client::prelude::*;
 use irc::client::prelude::Command::*;
-use regex::Regex;
-use std::collections::HashMap;
 
 const COMMAND_PREFIX : &str = "!";
 
 mod join_plugin;
+mod karma_plugin;
 
 fn main() {
     let cfg = Config {
@@ -22,7 +21,7 @@ fn main() {
     let server = IrcServer::from_config(cfg).unwrap();
     let mut plugins : Vec<Box<Plugin>> = Vec::new();
     plugins.push(Box::new(HelloWorldPlugin{}));
-    plugins.push(Box::new(KarmaPlugin::new()));
+    plugins.push(Box::new(karma_plugin::KarmaPlugin::new()));
     plugins.push(Box::new(join_plugin::JoinPlugin{}));
     server.identify().unwrap();
     for message in server.iter() {
@@ -68,43 +67,6 @@ impl Plugin for HelloWorldPlugin {
                         tags: None,
                         prefix: Some(String::from("irc-rs")),
                         command: PRIVMSG(channel, String::from("lo!"))
-                    }).expect("Couldn't send message");
-                }
-            },
-            _ => (),
-        }
-    }
-}
-
-struct KarmaPlugin {
-    regex : Regex,
-    scores : HashMap<String, i32>,
-}
-
-impl KarmaPlugin {
-    pub fn new() -> KarmaPlugin {
-        KarmaPlugin {
-            regex: Regex::new(r"([a-zA-Z0-9_]{2,})([\\+\\-]{2})").unwrap(),
-            scores: HashMap::new(),
-        }
-    }
-}
-
-impl Plugin for KarmaPlugin {
-
-    fn on_message(&mut self, server: &IrcServer, message: Message) {
-        match message.command {
-            PRIVMSG(channel, text) => {
-                for cap in self.regex.captures_iter(&text) {
-                    let item = &cap[1];
-                    let mut score = self.scores.entry(String::from(item)).or_insert(0);
-
-                    *score += if &cap[2] == "++" {1} else {-1};
-
-                    server.send(Message{
-                        tags: None,
-                        prefix: Some(String::from("irc-rs")),
-                        command: PRIVMSG(channel.clone(), format!("{} not has karma {}", item, score))
                     }).expect("Couldn't send message");
                 }
             },
