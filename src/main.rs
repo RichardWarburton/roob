@@ -10,6 +10,7 @@ const COMMAND_PREFIX : &str = "!";
 
 mod join_plugin;
 mod karma_plugin;
+mod hello_world_plugin;
 
 fn main() {
     let cfg = Config {
@@ -20,7 +21,7 @@ fn main() {
     };
     let server = IrcServer::from_config(cfg).unwrap();
     let mut plugins : Vec<Box<Plugin>> = Vec::new();
-    plugins.push(Box::new(HelloWorldPlugin{}));
+    plugins.push(Box::new(hello_world_plugin::HelloWorldPlugin{}));
     plugins.push(Box::new(karma_plugin::KarmaPlugin::new()));
     plugins.push(Box::new(join_plugin::JoinPlugin{}));
     server.identify().unwrap();
@@ -52,25 +53,4 @@ pub fn parse_command(text : String) -> Option<String> {
 
 pub trait Plugin {
     fn on_message(&mut self, server : &IrcServer, message : Message);
-}
-
-struct HelloWorldPlugin {
-
-}
-
-impl Plugin for HelloWorldPlugin {
-    fn on_message(&mut self, server: &IrcServer, message: Message) {
-        match message.command {
-            PRIVMSG(channel, text) => {
-                if text == "Hi" {
-                    server.send(Message{
-                        tags: None,
-                        prefix: Some(String::from("irc-rs")),
-                        command: PRIVMSG(channel, String::from("lo!"))
-                    }).expect("Couldn't send message");
-                }
-            },
-            _ => (),
-        }
-    }
 }
