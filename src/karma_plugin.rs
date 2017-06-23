@@ -24,17 +24,28 @@ impl Plugin for KarmaPlugin {
     fn on_message(&mut self, server: &IrcServer, message: Message) {
         match message.command {
             PRIVMSG(channel, text) => {
-                for cap in self.regex.captures_iter(&text) {
-                    let item = &cap[1];
-                    let mut score = self.scores.entry(String::from(item)).or_insert(0);
+                match parse_command(text.clone()) {
+                    Args(cmd, arg) => {
+                        if cmd == "karma" {
+                            let score = self.scores[&arg];
+                            server.send_privmsg(
+                                &channel,
+                                &format!("{} has karma {}", arg, score)).unwrap();
+                        }
+                    },
+                    Cmd(_) => (),
+                    Other => {
+                        for cap in self.regex.captures_iter(&text) {
+                            let item = &cap[1];
+                            let mut score = self.scores.entry(String::from(item)).or_insert(0);
 
-                    *score += if &cap[2] == "++" {1} else {-1};
+                            *score += if &cap[2] == "++" {1} else {-1};
 
-                    server.send(Message{
-                        tags: None,
-                        prefix: Some(String::from("irc-rs")),
-                        command: PRIVMSG(channel.clone(), format!("{} not has karma {}", item, score))
-                    }).expect("Couldn't send message");
+                            server.send_privmsg(
+                                &channel,
+                                &format!("{} not has karma {}", item, score)).unwrap();
+                        }
+                    },
                 }
             },
             _ => (),
