@@ -10,13 +10,13 @@ impl Plugin for JoinPlugin {
         match message.command {
             PRIVMSG(_, text) => {
                 match parse_command(text.clone()) {
-                    Some(cmd) => {
+                    Cmd(cmd) => {
                         if cmd == "join" {
                             let channel = text[6..].trim();
                             server.send_join(channel).unwrap();
                         }
                     }
-                    None => ()
+                    Other => ()
                 }
             }
             _ => (),

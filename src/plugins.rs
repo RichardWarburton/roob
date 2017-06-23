@@ -6,12 +6,19 @@ pub trait Plugin {
     fn on_message(&mut self, server : &IrcServer, message : Message);
 }
 
-pub fn parse_command(text : String) -> Option<String> {
+#[derive(Debug, PartialEq)]
+pub enum Command {
+    Cmd(String),
+    Other
+}
+pub use self::Command::*;
+
+pub fn parse_command(text : String) -> Command {
     if text.starts_with(COMMAND_PREFIX) {
         let end = text.find(' ').unwrap_or(text.len());
-        Some(String::from(&text[COMMAND_PREFIX.len() .. end ]))
+        Cmd(String::from(&text[COMMAND_PREFIX.len() .. end ]))
     } else {
-        None
+        Other
     }
 }
 
@@ -22,14 +29,14 @@ mod tests {
     #[test]
     fn parse_command_ignores_non_commands() {
         assert_eq!(
-        None,
+        Other,
         parse_command(String::from("lalal")));
     }
 
     #[test]
     fn parse_command_parses_simple_command() {
         assert_eq!(
-        Some(String::from("hi")),
+        Cmd(String::from("hi")),
         parse_command(String::from("!hi")));
     }
 
