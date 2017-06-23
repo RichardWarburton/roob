@@ -1,11 +1,11 @@
 {
-  "owners": [],
+  "owners": ["mulletron"],
   "nickname": "roob",
   "alt_nicks": ["roob_", "roob__"],
   "username": "roob",
   "server": "irc.uwcs.co.uk",
   "channels": ["#roob"],
   "options": {
-    "key": "value"
+    "prefix": "!"
   }
 }
