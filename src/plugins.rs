@@ -9,14 +9,19 @@ pub trait Plugin {
 #[derive(Debug, PartialEq)]
 pub enum Command {
     Cmd(String),
+    Args(String, String),
     Other
 }
 pub use self::Command::*;
 
 pub fn parse_command(text : String) -> Command {
     if text.starts_with(COMMAND_PREFIX) {
-        let end = text.find(' ').unwrap_or(text.len());
-        Cmd(String::from(&text[COMMAND_PREFIX.len() .. end ]))
+        match text.find(' ') {
+            Some(index) => Args(
+                String::from(&text[COMMAND_PREFIX.len() .. index]),
+                String::from(&text[index + 1 .. ])),
+            None => Cmd(String::from(&text[COMMAND_PREFIX.len() ..])),
+        }
     } else {
         Other
     }
@@ -29,18 +34,21 @@ mod tests {
     #[test]
     fn parse_command_ignores_non_commands() {
         assert_eq!(
-        Other,
-        parse_command(String::from("lalal")));
+            Other,
+            parse_command(String::from("lalal")));
     }
 
     #[test]
     fn parse_command_parses_simple_command() {
         assert_eq!(
-        Cmd(String::from("hi")),
-        parse_command(String::from("!hi")));
+            Cmd(String::from("hi")),
+            parse_command(String::from("!hi")));
     }
 
     #[test]
     fn parse_command_with_args() {
+        assert_eq!(
+            Args(String::from("hello"), String::from("world")),
+            parse_command(String::from("!hello world")));
     }
 }
