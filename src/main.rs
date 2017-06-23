@@ -2,24 +2,17 @@
 extern crate irc;
 extern crate regex;
 
-use std::default::Default;
 use irc::client::prelude::*;
-use irc::client::prelude::Command::*;
 
-const COMMAND_PREFIX : &str = "!";
-
+mod plugins;
 mod join_plugin;
 mod karma_plugin;
 mod hello_world_plugin;
 
+use plugins::*;
+
 fn main() {
-    let cfg = Config {
-        nickname: Some(format!("irc-rs")),
-        server: Some(format!("irc.uwcs.co.uk")),
-        channels: Some(vec![format!("#roob")]),
-        .. Default::default()
-    };
-    let server = IrcServer::from_config(cfg).unwrap();
+    let server = IrcServer::new("config.json").unwrap();
     let mut plugins : Vec<Box<Plugin>> = Vec::new();
     plugins.push(Box::new(hello_world_plugin::HelloWorldPlugin{}));
     plugins.push(Box::new(karma_plugin::KarmaPlugin::new()));
@@ -40,17 +33,4 @@ fn handle_message(plugins : &mut Vec<Box<Plugin>>, server : &IrcServer, message 
     for plugin in plugins {
         plugin.on_message(server, message.clone());
     }
-}
-
-pub fn parse_command(text : String) -> Option<String> {
-    if text.starts_with(COMMAND_PREFIX) {
-        let end = text.find(' ').unwrap_or(text.len());
-        Some(String::from(&text[COMMAND_PREFIX.len() .. end ]))
-    } else {
-        None
-    }
-}
-
-pub trait Plugin {
-    fn on_message(&mut self, server : &IrcServer, message : Message);
 }

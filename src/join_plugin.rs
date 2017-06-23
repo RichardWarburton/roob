@@ -1,8 +1,7 @@
 use irc::client::prelude::*;
 use irc::client::prelude::Command::*;
 
-use parse_command;
-use Plugin;
+use plugins::*;
 
 pub struct JoinPlugin {}
 
