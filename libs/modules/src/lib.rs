@@ -1,3 +1,5 @@
+extern crate irc;
+
 use irc::client::prelude::*;
 
 const COMMAND_PREFIX : &str = "!";
@@ -34,21 +36,21 @@ mod tests {
     #[test]
     fn parse_command_ignores_non_commands() {
         assert_eq!(
-            Other,
-            parse_command(String::from("lalal")));
+        Other,
+        parse_command(String::from("lalal")));
     }
 
     #[test]
     fn parse_command_parses_simple_command() {
         assert_eq!(
-            Cmd(String::from("hi")),
-            parse_command(String::from("!hi")));
+        Cmd(String::from("hi")),
+        parse_command(String::from("!hi")));
     }
 
     #[test]
     fn parse_command_with_args() {
         assert_eq!(
-            Args(String::from("hello"), String::from("world")),
-            parse_command(String::from("!hello world")));
+        Args(String::from("hello"), String::from("world")),
+        parse_command(String::from("!hello world")));
     }
 }

@@ -1,7 +1,7 @@
 use irc::client::prelude::*;
 use irc::client::prelude::Command::*;
 
-use plugins::*;
+use modules::*;
 
 pub struct JoinPlugin {}
 

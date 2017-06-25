@@ -3,7 +3,7 @@ use irc::client::prelude::Command::*;
 use std::collections::HashMap;
 use regex::Regex;
 
-use plugins::*;
+use modules::*;
 
 pub struct KarmaPlugin {
     regex : Regex,

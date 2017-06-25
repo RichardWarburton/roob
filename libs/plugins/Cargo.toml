@@ -1,14 +1,11 @@
 [package]
-name = "roob"
+name = "plugins"
 version = "0.1.0"
 authors = ["Richard Warburton <richard.warburton@gmail.com>"]
 
 [dependencies]
-openssl-sys = "0.9.14"
-regex = "0.2"
 # Using github release to enable openssl 0.9, as older versions don't seem to work on windows
 irc = { git = "https://github.com/RichardWarburton/irc.git" }
-libloading = "0.4"
 
 [dependencies.modules]
-path = "libs/modules"
+path = "../modules"

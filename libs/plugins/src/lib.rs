@@ -1,9 +1,13 @@
+
+extern crate modules;
+extern crate irc;
+
 use irc::client::prelude::*;
 use irc::client::prelude::Command::*;
 
-use plugins::*;
+use modules::*;
 
-pub struct HelloWorldPlugin {
+struct HelloWorldPlugin {
 
 }
 
@@ -24,11 +28,12 @@ impl Plugin for HelloWorldPlugin {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        // let plugin = HelloWorldPlugin{};
-//        plugin.on_message();
-    }
+#[no_mangle]
+pub fn get_plugin() -> Box<Plugin> {
+    Box::new(HelloWorldPlugin {})
+}
+
+#[no_mangle]
+pub fn get_val() -> Box<u32> {
+    Box::new(4)
 }
