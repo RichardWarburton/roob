@@ -3,9 +3,6 @@ name = "modules"
 version = "0.1.0"
 authors = ["Richard Warburton <richard.warburton@gmail.com>"]
 
-[lib]
-crate-type = ["dylib"]
-
 [dependencies]
 # Using github release to enable openssl 0.9, as older versions don't seem to work on windows
 irc = { git = "https://github.com/RichardWarburton/irc.git" }
