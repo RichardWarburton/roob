@@ -30,7 +30,7 @@ fn setup_plugin(
     let file_name = os_file_name.to_str().unwrap();
     if file_name.ends_with(".rs") {
         let plugin_name = String::from(&file_name[..file_name.len() - 3]);
-        println!("Name: {} {}", file.path().display(), plugin_name);
+        println!("Loading {} from {}", plugin_name, file.path().display());
 
         // create dir
         let plugin_dir = plugin_target.to_str().unwrap().to_owned() + "/" + &plugin_name + "/";
