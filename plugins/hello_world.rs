@@ -5,8 +5,6 @@ extern crate irc;
 use irc::client::prelude::*;
 use irc::client::prelude::Command::*;
 
-//use modules::*;
-
 #[no_mangle]
 pub fn on_message(server: &IrcServer, message: Message) {
     match message.command {
