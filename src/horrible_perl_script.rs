@@ -73,7 +73,8 @@ fn run_cargo(
         println!("{}", String::from_utf8_lossy(&output.stdout));
         println!("{}", String::from_utf8_lossy(&output.stderr));
     } else {
-        let lib_path = plugin_dir.clone() + "target/debug/" + &plugin_name + ".dll";
+        let lib_ext = if cfg!(target_os = "windows") { ".dll" } else { ".so" };
+        let lib_path = plugin_dir.clone() + "target/debug/" + &plugin_name + lib_ext;
         plugin_lib_paths.push(lib_path);
     }
 }
@@ -84,19 +85,19 @@ fn create_plugin_crate(plugin_path : &Path, plugin_dir : &String, plugin_name : 
     let cargo_path = plugin_dir.clone() + "Cargo.toml";
     let mut cargo_file = fs::File::create(cargo_path).unwrap();
     write!(cargo_file, "
-                [package]
-                name = \"{}\"
-                version = \"0.1.0\"
-                authors = [\"Richard Warburton <richard.warburton@gmail.com>\"]
+        [package]
+        name = \"{}\"
+        version = \"0.1.0\"
+        authors = [\"Richard Warburton <richard.warburton@gmail.com>\"]
 
-                [lib]
-                crate-type = [\"dylib\"]
+        [lib]
+        crate-type = [\"dylib\"]
 
-                [dependencies]
-                irc = {{ git = \"https://github.com/RichardWarburton/irc.git\" }}
+        [dependencies]
+        irc = {{ git = \"https://github.com/RichardWarburton/irc.git\" }}
 
-                [dependencies.modules]
-                path = \"../../libs/modules\"
-                ", plugin_name).unwrap();
+        [dependencies.modules]
+        path = \"../../libs/modules\"
+        ", plugin_name).unwrap();
     cargo_file.flush().unwrap();
 }
