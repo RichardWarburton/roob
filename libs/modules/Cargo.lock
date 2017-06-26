@@ -1,9 +1,8 @@
 [root]
-name = "plugins"
+name = "modules"
 version = "0.1.0"
 dependencies = [
  "irc 0.11.8 (git+https://github.com/RichardWarburton/irc.git)",
- "modules 0.1.0",
 ]
 
 [[package]]
@@ -125,13 +124,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "libc"
 version = "0.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "modules"
-version = "0.1.0"
-dependencies = [
- "irc 0.11.8 (git+https://github.com/RichardWarburton/irc.git)",
-]
 
 [[package]]
 name = "num-traits"

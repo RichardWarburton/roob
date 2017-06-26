@@ -5,7 +5,7 @@ extern crate irc;
 use irc::client::prelude::*;
 use irc::client::prelude::Command::*;
 
-use modules::*;
+//use modules::*;
 
 #[no_mangle]
 pub fn on_message(server: &IrcServer, message: Message) {
