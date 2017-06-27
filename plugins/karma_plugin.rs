@@ -31,37 +31,34 @@ pub fn init(server: &IrcServer) -> () {
 }
 
 #[no_mangle]
-pub fn on_message(server: &IrcServer, message: Message) {
-    unsafe {
-        let ref mut context = *state;
-        match message.command {
-            PRIVMSG(channel, text) => {
-                match parse_command(text.clone()) {
-                    Args(cmd, arg) => {
-                        if cmd == "karma" {
-                            let score = context.scores[&arg];
-                            server.send_privmsg(
-                                &channel,
-                                &format!("{} has karma {}", arg, score)).unwrap();
-                        }
-                    },
-                    Cmd(_) => (),
-                    Other => {
-                        for cap in context.regex.captures_iter(&text) {
-                            let item = &cap[1];
-                            let mut score = context.scores.entry(String::from(item)).or_insert(0);
+pub unsafe fn on_message(server: &IrcServer, message: Message) {
+    let ref mut context = *state;
+    match message.command {
+        PRIVMSG(channel, text) => {
+            match parse_command(text.clone()) {
+                Args(cmd, arg) => {
+                    if cmd == "karma" {
+                        let score = context.scores[&arg];
+                        server.send_privmsg(
+                            &channel,
+                            &format!("{} has karma {}", arg, score)).unwrap();
+                    }
+                },
+                Cmd(_) => (),
+                Other => {
+                    for cap in context.regex.captures_iter(&text) {
+                        let item = &cap[1];
+                        let mut score = context.scores.entry(String::from(item)).or_insert(0);
 
-                            *score += if &cap[2] == "++" {1} else {-1};
+                        *score += if &cap[2] == "++" {1} else {-1};
 
-                            server.send_privmsg(
-                                &channel,
-                                &format!("{} not has karma {}", item, score)).unwrap();
-                        }
-                    },
-                }
-            },
-            _ => (),
-        }
+                        server.send_privmsg(
+                            &channel,
+                            &format!("{} not has karma {}", item, score)).unwrap();
+                    }
+                },
+            }
+        },
+        _ => (),
     }
-
 }
