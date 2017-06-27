@@ -39,6 +39,7 @@ fn setup_plugin(
 
         // TODO: would it be better to just use rustc?
         // TODO: have a way to update the cargo file
+        // TODO: include custom dependency specification
         if !plugin_path.exists() {
             create_plugin_crate(&plugin_path, &plugin_dir, &plugin_name);
 

@@ -7,9 +7,6 @@ use irc::client::prelude::*;
 use lib::{Library, Symbol};
 use horrible_perl_script::setup_plugins;
 
-use std::any::Any;
-use std::ops::DerefMut;
-
 mod horrible_perl_script;
 
 fn main() {
@@ -44,7 +41,6 @@ fn handle_message(plugins : &mut Vec<Plugin>, server : &IrcServer, message : Mes
 }
 
 struct Plugin {
-    state : Box<Any>,
     lib : Library,
 }
 
@@ -52,28 +48,26 @@ impl Plugin {
     fn on_message(&mut self, server: &IrcServer, message: Message) -> () {
         // TODO: better validation - perhaps suggest that the fn be public and marked #[no_mangle]
         unsafe {
-            let on_message: Symbol<extern fn(state: &mut Any, server: &IrcServer, message: Message) -> ()> =
+            let on_message: Symbol<extern fn(server: &IrcServer, message: Message) -> ()> =
                 self.lib.get(b"on_message").unwrap();
 
-            on_message(self.state.deref_mut(), server, message);
+            on_message(server, message);
         }
     }
 }
 
 fn load_plugin(lib_path : String, server: &IrcServer) -> Plugin {
-    let lib = Library::new(lib_path).unwrap();
-    let state = unsafe {
-        let init : Result<Symbol<extern fn() -> Box<Any>>, _> =
+    let lib = Library::new(&lib_path).unwrap();
+    unsafe {
+        let init : Result<Symbol<extern fn(server: &IrcServer) -> ()>, _> =
             lib.get(b"init");
 
-        match init {
-            Ok(func) => func(),
-            Err(_) => Box::new(""),
+        if let Ok(func) = init {
+            func(server);
         }
     };
 
     Plugin {
-        state : state,
         lib : lib,
     }
 }

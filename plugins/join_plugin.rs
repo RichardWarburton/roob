@@ -8,16 +8,8 @@ use std::any::Any;
 
 use modules::*;
 
-pub struct State {
-}
-
 #[no_mangle]
-pub fn init() -> Box<State> {
-    Box::new(State{})
-}
-
-#[no_mangle]
-pub fn on_message(state: &mut Any, server: &IrcServer, message: Message) {
+pub fn on_message(server: &IrcServer, message: Message) {
     match message.command {
         PRIVMSG(_, text) => {
             match parse_command(text.clone()) {

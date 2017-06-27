@@ -7,7 +7,7 @@ use irc::client::prelude::Command::*;
 use std::any::Any;
 
 #[no_mangle]
-pub fn on_message(state: &mut Any, server: &IrcServer, message: Message) {
+pub fn on_message(server: &IrcServer, message: Message) {
     match message.command {
         PRIVMSG(channel, text) => {
             if text == "Hi" {
