@@ -8,6 +8,7 @@ use lib::{Library, Symbol};
 use horrible_perl_script::setup_plugins;
 
 use std::any::Any;
+use std::ops::DerefMut;
 
 mod horrible_perl_script;
 
@@ -51,10 +52,10 @@ impl Plugin {
     fn on_message(&mut self, server: &IrcServer, message: Message) -> () {
         // TODO: better validation - perhaps suggest that the fn be public and marked #[no_mangle]
         unsafe {
-            let on_message: Symbol<extern fn(server: &IrcServer, message: Message) -> ()> =
+            let on_message: Symbol<extern fn(state: &mut Any, server: &IrcServer, message: Message) -> ()> =
                 self.lib.get(b"on_message").unwrap();
 
-            on_message(server, message);
+            on_message(self.state.deref_mut(), server, message);
         }
     }
 }
@@ -62,10 +63,10 @@ impl Plugin {
 fn load_plugin(lib_path : String, server: &IrcServer) -> Plugin {
     let lib = Library::new(lib_path).unwrap();
     let state = unsafe {
-        let init_state : Result<Symbol<extern fn() -> Box<Any>>, _> =
-            lib.get(b"init_state");
+        let init : Result<Symbol<extern fn() -> Box<Any>>, _> =
+            lib.get(b"init");
 
-        match init_state {
+        match init {
             Ok(func) => func(),
             Err(_) => Box::new(""),
         }

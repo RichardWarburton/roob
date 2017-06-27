@@ -5,6 +5,7 @@ extern crate regex;
 use irc::client::prelude::*;
 use irc::client::prelude::Command::*;
 use std::collections::HashMap;
+use std::any::Any;
 use regex::Regex;
 
 use modules::*;
@@ -15,7 +16,7 @@ pub struct State {
 }
 
 #[no_mangle]
-pub fn init_state() -> Box<State> {
+pub fn init() -> Box<State> {
     Box::new(State{
         regex: Regex::new(r"([a-zA-Z0-9_]{2,})([\\+\\-]{2})").unwrap(),
         scores: HashMap::new(),
@@ -23,7 +24,7 @@ pub fn init_state() -> Box<State> {
 }
 
 #[no_mangle]
-pub fn on_message(server: &IrcServer, message: Message) {
+pub fn on_message(state: &mut Any, server: &IrcServer, message: Message) {
     /*match message.command {
         PRIVMSG(channel, text) => {
             match parse_command(text.clone()) {
