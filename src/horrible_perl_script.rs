@@ -72,6 +72,7 @@ fn run_cargo(
     if !output.status.success() {
         println!("{}", String::from_utf8_lossy(&output.stdout));
         println!("{}", String::from_utf8_lossy(&output.stderr));
+        panic!("Could not compile {}", plugin_name);
     } else {
         let lib_ext = if cfg!(target_os = "windows") { ".dll" } else { ".so" };
         let lib_path = plugin_dir.clone() + "target/debug/" + &plugin_name + lib_ext;

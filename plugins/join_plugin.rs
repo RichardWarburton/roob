@@ -1,7 +1,19 @@
+
+extern crate modules;
+extern crate irc;
+
 use irc::client::prelude::*;
 use irc::client::prelude::Command::*;
 
 use modules::*;
+
+pub struct State {
+}
+
+#[no_mangle]
+pub fn init_state() -> Box<State> {
+    Box::new(State{})
+}
 
 #[no_mangle]
 pub fn on_message(server: &IrcServer, message: Message) {
