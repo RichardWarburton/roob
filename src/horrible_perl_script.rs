@@ -96,6 +96,7 @@ fn create_plugin_crate(plugin_path : &Path, plugin_dir : &String, plugin_name : 
 
         [dependencies]
         irc = {{ git = \"https://github.com/RichardWarburton/irc.git\" }}
+        regex = \"0.2\"
 
         [dependencies.modules]
         path = \"../../libs/modules\"

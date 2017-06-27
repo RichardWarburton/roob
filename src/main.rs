@@ -1,17 +1,15 @@
 
 extern crate irc;
-extern crate regex;
 extern crate modules;
 extern crate libloading as lib;
-
-mod karma_plugin;
-mod horrible_perl_script;
 
 use irc::client::prelude::*;
 use lib::{Library, Symbol};
 use horrible_perl_script::setup_plugins;
 
 use std::any::Any;
+
+mod horrible_perl_script;
 
 fn main() {
     let plugin_lib_paths = setup_plugins();
@@ -51,6 +49,7 @@ struct Plugin {
 
 impl Plugin {
     fn on_message(&mut self, server: &IrcServer, message: Message) -> () {
+        // TODO: better validation - perhaps suggest that the fn be public and marked #[no_mangle]
         unsafe {
             let on_message: Symbol<extern fn(server: &IrcServer, message: Message) -> ()> =
                 self.lib.get(b"on_message").unwrap();
