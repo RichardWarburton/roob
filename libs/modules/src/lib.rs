@@ -8,6 +8,25 @@ pub trait Plugin {
     fn on_message(&mut self, server : &IrcServer, message : Message);
 }
 
+#[macro_export]
+macro_rules! plugin {
+    () => {
+        static mut state : *mut State = 0 as *mut State;
+
+        #[no_mangle]
+        pub fn plugin_init(server: &IrcServer) -> () {
+            let state_val = init(server);
+            unsafe { state = mem::transmute(Box::new(state_val)); }
+        }
+
+        #[no_mangle]
+        pub fn plugin_on_message(server: &IrcServer, message: Message) {
+            let ref mut context = unsafe {&mut *state};
+            on_message(context, server, message);
+        }
+    };
+}
+
 #[derive(Debug, PartialEq)]
 pub enum Command {
     Cmd(String),

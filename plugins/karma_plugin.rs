@@ -13,32 +13,21 @@ use std::mem;
 
 use modules::*;
 
+plugin! ();
+
 struct State {
     regex : Regex,
     scores : HashMap<String, i32>,
 }
 
-static mut state : *mut State = 0 as *mut State;
-
-#[no_mangle]
-pub fn init(server: &IrcServer) -> () {
-    let state_val = State {
+fn init(server: &IrcServer) -> State {
+    State {
         regex: Regex::new(r"([a-zA-Z0-9_]{2,})([\\+\\-]{2})").unwrap(),
         scores: HashMap::new(),
-    };
-
-    set_state(state_val);
-}
-
-fn set_state(state_val : State) {
-    unsafe {
-        state = mem::transmute(Box::new(state_val));
     }
 }
 
-#[no_mangle]
-pub fn on_message(server: &IrcServer, message: Message) {
-    let ref mut context = unsafe {&mut *state};
+fn on_message(context : &mut State, server: &IrcServer, message: Message) {
     match message.command {
         PRIVMSG(channel, text) => {
             match parse_command(text.clone()) {
@@ -56,7 +45,7 @@ pub fn on_message(server: &IrcServer, message: Message) {
                         let item = &cap[1];
                         let mut score = context.scores.entry(String::from(item)).or_insert(0);
 
-                        *score += if &cap[2] == "++" {1} else {-1};
+                        *score += if &cap[2] == "++" { 1 } else { -1 };
 
                         server.send_privmsg(
                             &channel,

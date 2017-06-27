@@ -49,7 +49,7 @@ impl Plugin {
         // TODO: better validation - perhaps suggest that the fn be public and marked #[no_mangle]
         unsafe {
             let on_message: Symbol<extern fn(server: &IrcServer, message: Message) -> ()> =
-                self.lib.get(b"on_message").unwrap();
+                self.lib.get(b"plugin_on_message").unwrap();
 
             on_message(server, message);
         }
@@ -60,7 +60,7 @@ fn load_plugin(lib_path : String, server: &IrcServer) -> Plugin {
     let lib = Library::new(&lib_path).unwrap();
     unsafe {
         let init : Result<Symbol<extern fn(server: &IrcServer) -> ()>, _> =
-            lib.get(b"init");
+            lib.get(b"plugin_init");
 
         if let Ok(func) = init {
             func(server);

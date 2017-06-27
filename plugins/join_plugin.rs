@@ -9,7 +9,7 @@ use std::any::Any;
 use modules::*;
 
 #[no_mangle]
-pub fn on_message(server: &IrcServer, message: Message) {
+pub fn plugin_on_message(server: &IrcServer, message: Message) {
     match message.command {
         PRIVMSG(_, text) => {
             match parse_command(text.clone()) {
