@@ -22,11 +22,17 @@ static mut state : *mut State = 0 as *mut State;
 
 #[no_mangle]
 pub fn init(server: &IrcServer) -> () {
+    let state_val = State {
+        regex: Regex::new(r"([a-zA-Z0-9_]{2,})([\\+\\-]{2})").unwrap(),
+        scores: HashMap::new(),
+    };
+
+    set_state(state_val);
+}
+
+fn set_state(state_val : State) {
     unsafe {
-        state = mem::transmute(Box::new(State{
-            regex: Regex::new(r"([a-zA-Z0-9_]{2,})([\\+\\-]{2})").unwrap(),
-            scores: HashMap::new(),
-        }));
+        state = mem::transmute(Box::new(state_val));
     }
 }
 
