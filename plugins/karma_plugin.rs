@@ -31,8 +31,8 @@ pub fn init(server: &IrcServer) -> () {
 }
 
 #[no_mangle]
-pub unsafe fn on_message(server: &IrcServer, message: Message) {
-    let ref mut context = *state;
+pub fn on_message(server: &IrcServer, message: Message) {
+    let ref mut context = unsafe {&mut *state};
     match message.command {
         PRIVMSG(channel, text) => {
             match parse_command(text.clone()) {
